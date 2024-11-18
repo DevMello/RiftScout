@@ -1,0 +1,816 @@
+type Query {
+  teamByNumber(number: Int!): Team
+  teamByName(name: String!): Team
+  teamsSearch(region: RegionOption, limit: Int, searchText: String): [Team!]!
+  eventByCode(season: Int!, code: String!): Event
+  eventsSearch(
+    season: Int!
+    region: RegionOption
+    type: EventTypeOption
+    hasMatches: Boolean
+    start: Date
+    end: Date
+    limit: Int
+    searchText: String
+  ): [Event!]!
+  tepRecords(
+    season: Int!
+    sortBy: String
+    sortDir: SortDir
+    filter: Filter
+    region: RegionOption
+    type: EventTypeOption
+    remote: RemoteOption
+    start: Date
+    end: Date
+    skip: Int!
+    take: Int!
+  ): TepRecords!
+  matchRecords(
+    season: Int!
+    sortBy: String
+    sortDir: SortDir
+    filter: Filter
+    region: RegionOption
+    type: EventTypeOption
+    remote: RemoteOption
+    start: Date
+    end: Date
+    skip: Int!
+    take: Int!
+  ): MatchRecords!
+  activeTeamsCount(season: Int!): Int!
+  matchesPlayedCount(season: Int!): Int!
+  eventsOnDate(date: DateTime, type: EventTypeOption): [Event!]!
+  tradWorldRecord(season: Int!): Match!
+  getBestName: BestName
+}
+
+type Team {
+  number: Int!
+  name: String!
+  schoolName: String!
+  sponsors: [String!]!
+  location: Location!
+  rookieYear: Int!
+  website: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  awards(season: Int): [Award!]!
+  matches(season: Int, eventCode: String): [TeamMatchParticipation!]!
+  events(season: Int!): [TeamEventParticipation!]!
+  quickStats(season: Int!, region: RegionOption): QuickStats
+}
+
+type Location {
+  venue: String
+  city: String!
+  state: String!
+  country: String!
+}
+
+# A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar DateTime
+
+type Award {
+  season: Int!
+  eventCode: String!
+  teamNumber: Int!
+  divisionName: String
+  personName: String
+  type: AwardType!
+  placement: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  team: Team!
+  event: Event!
+}
+
+enum AwardType {
+  DeansListFinalist
+  DeansListSemiFinalist
+  DeansListWinner
+  JudgesChoice
+  DivisionFinalist
+  DivisionWinner
+  ConferenceFinalist
+  Compass
+  Promote
+  Control
+  Motivate
+  Design
+  Innovate
+  Connect
+  Think
+  TopRanked
+  Inspire
+  Winner
+  Finalist
+}
+
+type Event {
+  season: Int!
+  code: String!
+  divisionCode: String
+  name: String!
+  remote: Boolean!
+  hybrid: Boolean!
+  fieldCount: Int!
+  published: Boolean!
+  type: EventType!
+  regionCode: String
+  leagueCode: String
+  districtCode: String
+  address: String
+  location: Location!
+  website: String
+  liveStreamURL: String
+  webcasts: [String!]!
+  timezone: String!
+  start: Date!
+  end: Date!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  started: Boolean!
+  ongoing: Boolean!
+  finished: Boolean!
+  relatedEvents: [Event!]!
+  awards: [Award!]!
+  teams: [TeamEventParticipation!]!
+  teamMatches(teamNumber: Int): [TeamMatchParticipation!]!
+  hasMatches: Boolean!
+  matches: [Match!]!
+}
+
+enum EventType {
+  Scrimmage
+  LeagueMeet
+  Qualifier
+  LeagueTournament
+  Championship
+  Other
+  FIRSTChampionship
+  SuperQualifier
+  InnovationChallenge
+  OffSeason
+  Kickoff
+  Workshop
+  DemoExhibition
+  VolunteerSignup
+  PracticeDay
+}
+
+# A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar Date
+
+type TeamEventParticipation {
+  season: Int!
+  eventCode: String!
+  teamNumber: Int!
+  stats: TeamEventStats
+  event: Event!
+  team: Team!
+  awards: [Award!]!
+  matches: [TeamMatchParticipation!]!
+}
+
+union TeamEventStats =
+  | TeamEventStats2022
+  | TeamEventStats2023
+  | TeamEventStats2024
+
+
+type TeamEventStats2022 {
+  rank: Int!
+  rp: Float!
+  tb1: Float!
+  tb2: Float!
+  wins: Int!
+  losses: Int!
+  ties: Int!
+  dqs: Int!
+  qualMatchesPlayed: Int!
+  tot: TeamEventStats2022Group!
+  avg: TeamEventStats2022Group!
+  min: TeamEventStats2022Group!
+  max: TeamEventStats2022Group!
+  dev: TeamEventStats2022Group!
+  opr: TeamEventStats2022Group!
+}
+
+type TeamEventStats2022Group {
+  autoNavPoints: Float!
+  autoNavPointsIndividual: Float!
+  autoConePoints: Float!
+  autoTerminalPoints: Float!
+  autoGroundPoints: Float!
+  autoLowPoints: Float!
+  autoMediumPoints: Float!
+  autoHighPoints: Float!
+  egNavPoints: Float!
+  egNavPointsIndividual: Float!
+  ownershipPoints: Float!
+  coneOwnershipPoints: Float!
+  beaconOwnershipPoints: Float!
+  circuitPoints: Float!
+  majorsCommittedPoints: Float!
+  minorsCommittedPoints: Float!
+  penaltyPointsCommitted: Float!
+  majorsByOppPoints: Float!
+  minorsByOppPoints: Float!
+  penaltyPointsByOpp: Float!
+  autoPoints: Float!
+  dcPoints: Float!
+  dcTerminalPoints: Float!
+  dcGroundPoints: Float!
+  dcLowPoints: Float!
+  dcMediumPoints: Float!
+  dcHighPoints: Float!
+  egPoints: Float!
+  totalPointsNp: Float!
+  totalPoints: Float!
+}
+
+type TeamEventStats2023 {
+  rank: Int!
+  rp: Float!
+  tb1: Float!
+  tb2: Float!
+  wins: Int!
+  losses: Int!
+  ties: Int!
+  dqs: Int!
+  qualMatchesPlayed: Int!
+  tot: TeamEventStats2023Group!
+  avg: TeamEventStats2023Group!
+  min: TeamEventStats2023Group!
+  max: TeamEventStats2023Group!
+  dev: TeamEventStats2023Group!
+  opr: TeamEventStats2023Group!
+}
+
+type TeamEventStats2023Group {
+  egNavPoints: Float!
+  egNavPointsIndividual: Float!
+  purplePoints: Float!
+  purplePointsIndividual: Float!
+  yellowPoints: Float!
+  yellowPointsIndividual: Float!
+  autoPixelPoints: Float!
+  autoBackstagePoints: Float!
+  autoBackdropPoints: Float!
+  autoNavPoints: Float!
+  autoNavPointsIndividual: Float!
+  dronePoints: Float!
+  dronePointsIndividual: Float!
+  setLinePoints: Float!
+  mosaicPoints: Float!
+  majorsCommittedPoints: Float!
+  minorsCommittedPoints: Float!
+  penaltyPointsCommitted: Float!
+  majorsByOppPoints: Float!
+  minorsByOppPoints: Float!
+  penaltyPointsByOpp: Float!
+  autoPoints: Float!
+  dcPoints: Float!
+  dcBackdropPoints: Float!
+  dcBackstagePoints: Float!
+  egPoints: Float!
+  totalPointsNp: Float!
+  totalPoints: Float!
+}
+
+type TeamEventStats2024 {
+  rank: Int!
+  rp: Float!
+  tb1: Float!
+  tb2: Float!
+  wins: Int!
+  losses: Int!
+  ties: Int!
+  dqs: Int!
+  qualMatchesPlayed: Int!
+  tot: TeamEventStats2024Group!
+  avg: TeamEventStats2024Group!
+  min: TeamEventStats2024Group!
+  max: TeamEventStats2024Group!
+  dev: TeamEventStats2024Group!
+  opr: TeamEventStats2024Group!
+}
+
+type TeamEventStats2024Group {
+  autoParkPoints: Float!
+  autoParkPointsIndividual: Float!
+  autoSamplePoints: Float!
+  autoSpecimenPoints: Float!
+  autoSampleNetPoints: Float!
+  autoSampleLowPoints: Float!
+  autoSampleHighPoints: Float!
+  autoSpecimenLowPoints: Float!
+  autoSpecimenHighPoints: Float!
+  dcParkPoints: Float!
+  dcParkPointsIndividual: Float!
+  dcSamplePoints: Float!
+  dcSpecimenPoints: Float!
+  dcSampleNetPoints: Float!
+  dcSampleLowPoints: Float!
+  dcSampleHighPoints: Float!
+  dcSpecimenLowPoints: Float!
+  dcSpecimenHighPoints: Float!
+  autoPoints: Float!
+  dcPoints: Float!
+  majorsCommittedPoints: Float!
+  minorsCommittedPoints: Float!
+  penaltyPointsCommitted: Float!
+  majorsByOppPoints: Float!
+  minorsByOppPoints: Float!
+  penaltyPointsByOpp: Float!
+  totalPointsNp: Float!
+  totalPoints: Float!
+}
+
+type TeamMatchParticipation {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  alliance: Alliance!
+  station: Station!
+  teamNumber: Int!
+  allianceRole: AllianceRole!
+  surrogate: Boolean!
+  noShow: Boolean!
+  dq: Boolean!
+  onField: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  team: Team!
+  match: Match!
+  event: Event!
+}
+
+enum Alliance {
+  Red
+  Blue
+  Solo
+}
+
+enum Station {
+  One
+  Two
+  NotOnField
+  Solo
+}
+
+enum AllianceRole {
+  Captain
+  FirstPick
+  SecondPick
+  Solo
+}
+
+type Match {
+  season: Int!
+  eventCode: String!
+  id: Int!
+  hasBeenPlayed: Boolean!
+  scheduledStartTime: DateTime
+  actualStartTime: DateTime
+  postResultTime: DateTime
+  tournamentLevel: TournamentLevel!
+  series: Int!
+  matchNum: Int!
+  description: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  scores: MatchScores
+  teams: [TeamMatchParticipation!]!
+  event: Event!
+}
+
+enum TournamentLevel {
+  Quals
+  Semis
+  Finals
+}
+
+union MatchScores =
+
+  | MatchScores2022
+  | MatchScores2023
+  | MatchScores2024
+
+type MatchScores2022 {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  autoConeLayout: ConeLayout!
+  dcConeLayout: ConeLayout!
+  red: MatchScores2022Alliance!
+  blue: MatchScores2022Alliance!
+}
+
+type ConeLayout {
+  redNearTerminal: Int!
+  redFarTerminal: Int!
+  blueNearTerminal: Int!
+  blueFarTerminal: Int!
+  junctions: [[[ConeType!]!]!]!
+}
+
+enum ConeType {
+  RedCone
+  BlueCone
+  RedBeacon1
+  BlueBeacon1
+  RedBeacon2
+  BlueBeacon2
+}
+
+type MatchScores2022Alliance {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  alliance: Alliance!
+  autoNav2022_1: AutoNav2022!
+  autoNav2022_2: AutoNav2022!
+  autoTerminalCones: Int!
+  autoGroundCones: Int!
+  autoLowCones: Int!
+  autoMediumCones: Int!
+  autoHighCones: Int!
+  dcNearTerminalCones: Int!
+  dcFarTerminalCones: Int!
+  dcTerminalCones: Int!
+  dcGroundCones: Int!
+  dcLowCones: Int!
+  dcMediumCones: Int!
+  dcHighCones: Int!
+  egNav1: Boolean!
+  egNav2: Boolean!
+  coneOwnedJunctions: Int!
+  beaconOwnedJunctions: Int!
+  circuit: Boolean!
+  minorsCommitted: Int!
+  majorsCommitted: Int!
+  minorsByOpp: Int!
+  majorsByOpp: Int!
+  autoNavPoints: Int!
+  autoConePoints: Int!
+  egNavPoints: Int!
+  ownershipPoints: Int!
+  circuitPoints: Int!
+  penaltyPointsCommitted: Int!
+  penaltyPointsByOpp: Int!
+  autoPoints: Int!
+  dcPoints: Int!
+  egPoints: Int!
+  totalPointsNp: Int!
+  totalPoints: Int!
+}
+
+enum AutoNav2022 {
+  None
+  Terminal
+  Signal
+  TeamSignal
+}
+
+type MatchScores2023 {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  red: MatchScores2023Alliance!
+  blue: MatchScores2023Alliance!
+}
+
+type MatchScores2023Alliance {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  alliance: Alliance!
+  egNav2023_1: EgNav2023!
+  egNav2023_2: EgNav2023!
+  purple1: AutoSpecialScoring!
+  purple2: AutoSpecialScoring!
+  yellow1: AutoSpecialScoring!
+  yellow2: AutoSpecialScoring!
+  autoBackdrop: Int!
+  autoBackstage: Int!
+  dcBackstage: Int!
+  dcBackdrop: Int!
+  autoNav1: Boolean!
+  autoNav2: Boolean!
+  drone1: Int!
+  drone2: Int!
+  maxSetLine: Int!
+  mosaics: Int!
+  minorsCommitted: Int!
+  majorsCommitted: Int!
+  minorsByOpp: Int!
+  majorsByOpp: Int!
+  egNavPoints: Int!
+  purplePoints: Int!
+  yellowPoints: Int!
+  autoPixelPoints: Int!
+  autoNavPoints: Int!
+  dronePoints: Int!
+  setLinePoints: Int!
+  mosaicPoints: Int!
+  penaltyPointsCommitted: Int!
+  penaltyPointsByOpp: Int!
+  autoPoints: Int!
+  dcPoints: Int!
+  egPoints: Int!
+  totalPointsNp: Int!
+  totalPoints: Int!
+}
+
+enum EgNav2023 {
+  None
+  Backstage
+  Rigging
+}
+
+enum AutoSpecialScoring {
+  None
+  NoProp
+  TeamProp
+}
+
+type MatchScores2024 {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  red: MatchScores2024Alliance!
+  blue: MatchScores2024Alliance!
+}
+
+type MatchScores2024Alliance {
+  season: Int!
+  eventCode: String!
+  matchId: Int!
+  alliance: Alliance!
+  autoPark1: ITDPark!
+  autoPark2: ITDPark!
+  autoSampleNet: Int!
+  autoSampleLow: Int!
+  autoSampleHigh: Int!
+  autoSpecimenLow: Int!
+  autoSpecimenHigh: Int!
+  dcPark1: ITDPark!
+  dcPark2: ITDPark!
+  dcSampleNet: Int!
+  dcSampleLow: Int!
+  dcSampleHigh: Int!
+  dcSpecimenLow: Int!
+  dcSpecimenHigh: Int!
+  minorsCommitted: Int!
+  majorsCommitted: Int!
+  minorsByOpp: Int!
+  majorsByOpp: Int!
+  autoParkPoints: Int!
+  autoSamplePoints: Int!
+  autoSpecimenPoints: Int!
+  dcParkPoints: Int!
+  dcSamplePoints: Int!
+  dcSpecimenPoints: Int!
+  autoPoints: Int!
+  dcPoints: Int!
+  penaltyPointsCommitted: Int!
+  penaltyPointsByOpp: Int!
+  totalPointsNp: Int!
+  totalPoints: Int!
+}
+
+enum ITDPark {
+  ObservationZone
+  Ascent1
+  Ascent2
+  Ascent3
+  None
+}
+
+type QuickStats {
+  season: Int!
+  number: Int!
+  tot: QuickStat!
+  auto: QuickStat!
+  dc: QuickStat!
+  eg: QuickStat!
+  count: Int!
+}
+
+type QuickStat {
+  value: Float!
+  rank: Int!
+}
+
+enum RegionOption {
+  All
+  UnitedStates
+  International
+  USCA
+  USNY
+  USTX
+  AU
+  BR
+  CAAB
+  CABC
+  CAON
+  CAQC
+  CMPIC
+  CMPZ2
+  CN
+  CY
+  DE
+  EG
+  ES
+  FR
+  GB
+  IL
+  IN
+  JM
+  KR
+  KZ
+  LY
+  MX
+  NG
+  NL
+  NZ
+  ONADOD
+  QA
+  RO
+  RU
+  SA
+  TH
+  TW
+  USAK
+  USAL
+  USAR
+  USARL
+  USAZ
+  USCALA
+  USCALS
+  USCANO
+  USCASD
+  USCHS
+  USCO
+  USCT
+  USDE
+  USFL
+  USGA
+  USHI
+  USIA
+  USID
+  USIL
+  USIN
+  USKY
+  USLA
+  USMA
+  USMD
+  USMI
+  USMN
+  USMOKS
+  USMS
+  USMT
+  USNC
+  USND
+  USNE
+  USNH
+  USNJ
+  USNM
+  USNV
+  USNYEX
+  USNYLI
+  USNYNY
+  USOH
+  USOK
+  USOR
+  USPA
+  USRI
+  USSC
+  USTN
+  USTXCE
+  USTXHO
+  USTXNO
+  USTXSO
+  USTXWP
+  USUT
+  USVA
+  USVT
+  USWA
+  USWI
+  USWV
+  USWY
+  ZA
+}
+
+enum EventTypeOption {
+  All
+  Competition
+  Official
+  NonCompetition
+  Scrimmage
+  LeagueMeet
+  Qualifier
+  LeagueTournament
+  Championship
+  Other
+  FIRSTChampionship
+  SuperQualifier
+  InnovationChallenge
+  OffSeason
+  Kickoff
+  Workshop
+  DemoExhibition
+  VolunteerSignup
+  PracticeDay
+}
+
+type TepRecords {
+  data: [TepRecordRow!]!
+  offset: Int!
+  count: Int!
+}
+
+type TepRecordRow {
+  data: TeamEventParticipation!
+  noFilterRank: Int!
+  filterRank: Int!
+  noFilterSkipRank: Int!
+  filterSkipRank: Int!
+}
+
+enum SortDir {
+  Asc
+  Desc
+}
+
+input Filter {
+  group: FilterGroup
+  cond: FilterCond
+}
+
+input FilterGroup {
+  ty: FilterGroupTy!
+  children: [Filter!]!
+}
+
+enum FilterGroupTy {
+  And
+  Or
+}
+
+input FilterCond {
+  lhs: FilterValue!
+  op: FilterOp!
+  rhs: FilterValue!
+}
+
+input FilterValue {
+  lit: Int
+  var: String
+}
+
+enum FilterOp {
+  Eq
+  Neq
+  Gt
+  Gte
+  Lt
+  Lte
+}
+
+enum RemoteOption {
+  All
+  Trad
+  Remote
+}
+
+type MatchRecords {
+  data: [MatchRecordRow!]!
+  offset: Int!
+  count: Int!
+}
+
+type MatchRecordRow {
+  data: SpecificAlliance!
+  noFilterRank: Int!
+  filterRank: Int!
+  noFilterSkipRank: Int!
+  filterSkipRank: Int!
+}
+
+type SpecificAlliance {
+  match: Match!
+  alliance: Alliance!
+}
+
+
+type Mutation {
+  voteBestName(id: Int!, vote: Int!): BestName
+}
+
+type Subscription {
+  newMatches(season: Int!, code: String!): [Match!]
+}

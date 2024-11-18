@@ -23,21 +23,6 @@ interface TeamStats {
   count: number;
 }
 
-interface Award {
-  type: string;
-  placement: string;
-}
-
-interface Event {
-  eventCode: string;
-  stats: { rank: number };
-}
-
-interface EventTeam {
-  teamNumber: number;
-  stats: { rank: number; rp: number };
-}
-
 interface QuickStats {
   tot: { value: number };
   auto: { value: number };
@@ -48,23 +33,16 @@ interface QuickStats {
 // Component
 export default function IndexPage() {
   const [number, setNumber] = useState<string>('');
+  const [compareNumber, setCompareNumber] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showCompareModal, setCompareShowModal] = useState<boolean>(false);
   const [teamData, setTeamData] = useState<TeamData | null>(null);
   const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
-  const [awards, setAwards] = useState<Award[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [eventTeams, setEventTeams] = useState<Record<string, EventTeam[]>>({});
-  const [teamQuickStats, setTeamQuickStats] = useState<Record<number, QuickStats>>({});
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [compareTeamData, setCompareTeamData] = useState<TeamData | null>(null);
   const [compareTeamStats, setCompareTeamStats] = useState<TeamStats | null>(null);
-  const [expandedTeamDetails, setExpandedTeamDetails] = useState<number | null>(null);
-
-  const [compareNumber, setCompareNumber] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const year: number = 2024;
+
   const handleSearch = async () => {
     if (!number) {
       alert('Please enter a valid team number.');
@@ -75,9 +53,8 @@ export default function IndexPage() {
     setError(null);
     setTeamData(null);
     setTeamStats(null);
-    setAwards([]);
-    setEvents([]);
-    setEventTeams({});
+    setCompareTeamData(null);
+    setCompareTeamStats(null);
 
     try {
       const teamResponse = await fetch(`https://api.ftcscout.org/rest/v1/teams/${number}`);
@@ -86,33 +63,13 @@ export default function IndexPage() {
       }
       const teamDataResult = await teamResponse.json();
       setTeamData(teamDataResult);
+
       const statsResponse = await fetch(`https://api.ftcscout.org/rest/v1/teams/${number}/quick-stats?season=${year}`);
       if (!statsResponse.ok) {
         throw new Error('Quick stats not available for this team');
       }
       const statsData = await statsResponse.json();
       setTeamStats(statsData);
-      const awardsResponse = await fetch(`https://api.ftcscout.org/rest/v1/teams/${number}/awards?season=${year}`);
-      if (!awardsResponse.ok) {
-        throw new Error('Awards not available for this team');
-      }
-      const awardsData = await awardsResponse.json();
-      setAwards(awardsData);
-
-      const eventsResponse = await fetch(`https://api.ftcscout.org/rest/v1/teams/${number}/events/${year}`);
-      if (!eventsResponse.ok) {
-        throw new Error('Events not available for this team');
-      }
-      const eventsData = await eventsResponse.json();
-      setEvents(eventsData);
-
-      const eventTeamsData: Record<string, EventTeam[]> = {};
-      for (const event of eventsData) {
-        const eventTeamsResponse = await fetch(`https://api.ftcscout.org/rest/v1/events/${year}/${event.eventCode}/teams`);
-        const eventTeamsResult = await eventTeamsResponse.json();
-        eventTeamsData[event.eventCode] = eventTeamsResult;
-      }
-      setEventTeams(eventTeamsData);
 
       setShowModal(true);
     } catch (err: any) {
@@ -120,41 +77,6 @@ export default function IndexPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadTeamQuickStats = async (teamNumber: number) => {
-    if (teamQuickStats[teamNumber]) return;
-    setLoading(true);
-    try {
-      const quickStatsResponse = await fetch(`https://api.ftcscout.org/rest/v1/teams/${teamNumber}/quick-stats?season=${year}`);
-      if (!quickStatsResponse.ok) {
-        throw new Error('Quick stats not available for this team');
-      }
-      const quickStatsData = await quickStatsResponse.json();
-      setTeamQuickStats((prevStats) => ({
-        ...prevStats,
-        [teamNumber]: quickStatsData,
-      }));
-    } catch (err: any) {
-      console.error(`Failed to fetch stats for team ${teamNumber}:`, err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const roundValue = (value: number, decimals: number = 2): number => {
-    return value ? parseFloat(value.toFixed(decimals)) : 0;
-  };
-
-
-  const toggleEventDetails = (eventCode: string): void => {
-    setExpandedEvent(expandedEvent === eventCode ? null : eventCode);
-  };
-
-
-  const toggleIndividualTeamDetails = (teamNumber: number): void => {
-    setExpandedTeamDetails(expandedTeamDetails === teamNumber ? null : teamNumber);
-    loadTeamQuickStats(teamNumber); 
   };
 
   const handleCompare = async () => {
@@ -187,7 +109,7 @@ export default function IndexPage() {
       const compareStatsData = await compareStatsResponse.json();
       setCompareTeamStats(compareStatsData);
 
-      setCompareShowModal(true);
+      setShowModal(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -195,7 +117,10 @@ export default function IndexPage() {
     }
   };
 
-  
+  const roundValue = (value: number, decimals: number = 2): number => {
+    return value ? parseFloat(value.toFixed(decimals)) : 0;
+  };
+
   const compareStats = (team1Stats: TeamStats | null, team2Stats: TeamStats | null) => {
     if (!team1Stats || !team2Stats) return { pros: [], cons: [], finalResult: '' };
 
@@ -303,122 +228,15 @@ export default function IndexPage() {
 
         <Dialog open={showModal} onOpenChange={(open) => setShowModal(open)}>
           <DialogContent className="max-w-lg p-6 bg-gray-800 rounded-lg max-h-[90vh] overflow-y-auto">
+            {/* Team 1 Stats */}
             <DialogHeader>
               <DialogTitle className="text-white">{teamData?.name} - {teamData?.number}</DialogTitle>
               <DialogDescription className="text-white">
-                <div><strong>School:</strong> {teamData?.schoolName}</div>
-                <div><strong>Rookie Year:</strong> {teamData?.rookieYear}</div>
-                <div><strong>Location:</strong> {teamData?.city}, {teamData?.state}</div>
-                <div><strong>Sponsors:</strong> {teamData?.sponsors.join(', ')}</div>
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Awards Section */}
-            <DialogHeader>
-              <DialogTitle className="text-white">Awards</DialogTitle>
-              <DialogDescription className="text-white">
-                {awards.length > 0 ? (
-                  <ul>
-                    {awards.map((award, index) => (
-                      <li key={index}>
-                        {award.type} - Placement: {award.placement}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div>No awards available for this team from .</div>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Team Stats Section */}
-            <DialogHeader>
-              <DialogTitle className="text-white">Team Stats</DialogTitle>
-              <DialogDescription className="text-white">
-                {teamStats ? (
-                  <ul>
-                    <li><strong>Total OPR:</strong> {roundValue(teamStats.tot.value)} (Rank: {teamStats.tot.rank})</li>
-                    <li><strong>Auto OPR:</strong> {roundValue(teamStats.auto.value)} (Rank: {teamStats.auto.rank})</li>
-                    <li><strong>TeleOp OPR:</strong> {roundValue(teamStats.dc.value)} (Rank: {teamStats.dc.rank})</li>
-                    <li><strong>Endgame OPR:</strong> {roundValue(teamStats.eg.value)} (Rank: {teamStats.eg.rank})</li>
-                  </ul>
-                ) : (
-                  <div>No team stats available for this season.</div>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Events Section */}
-            <DialogHeader>
-              <DialogTitle className="text-white">Events</DialogTitle>
-              <DialogDescription className="text-white">
-                {events.length > 0 ? (
-                  <ul>
-                    {events.map((event, index) => {
-                      const sortedTeams = eventTeams[event.eventCode]?.sort((a, b) => a.stats.rank - b.stats.rank);
-                      return (
-                        <li key={index}>
-                          <Button onClick={() => toggleEventDetails(event.eventCode)} className="w-full text-left bg-gray-500">
-                            <strong>{event.eventCode} - Team Rank: {event.stats.rank}</strong>
-                          </Button>
-
-                          {expandedEvent === event.eventCode && (
-                            <div className="ml-4 mt-2">
-                              <ul>
-                                {sortedTeams?.map((team, idx) => (
-                                  <li key={idx}>
-                                    <Button
-                                      onClick={() => toggleIndividualTeamDetails(team.teamNumber)}
-                                      className="w-full text-left bg-gray-400"
-                                    >
-                                      <strong>Team {team.teamNumber}</strong> - Rank: {team.stats.rank} RP: {roundValue(team.stats.rp)}
-                                    </Button>
-
-                                    {/* Expanded team details with quick stats */}
-                                    {expandedTeamDetails === team.teamNumber && teamQuickStats[team.teamNumber] && (
-                                      <div className="ml-4 mt-2">
-                                        <ul>
-                                          <li><strong>Team Number:</strong> {team.teamNumber}</li>
-                                          <li><strong>Rank:</strong> {team.stats.rank}</li>
-                                          <li><strong>RP:</strong> {roundValue(team.stats.rp)}</li>
-                                          <li><strong>Total OPR:</strong> {roundValue(teamQuickStats[team.teamNumber].tot.value)}</li>
-                                          <li><strong>Auto OPR:</strong> {roundValue(teamQuickStats[team.teamNumber].auto.value)}</li>
-                                          <li><strong>TeleOp OPR:</strong> {roundValue(teamQuickStats[team.teamNumber].dc.value)}</li>
-                                          <li><strong>Endgame OPR:</strong> {roundValue(teamQuickStats[team.teamNumber].eg.value)}</li>
-                                        </ul>
-                                      </div>
-                                    )}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <div>No events available for this team.</div>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-
-
-
-
-        <Dialog open={showCompareModal} onOpenChange={(open) => setCompareShowModal(open)}>
-          <DialogContent className="max-w-lg p-6 bg-gray-800 rounded-lg max-h-[90vh] overflow-y-auto">
-            {/* Team 1 Stats */}
-            <DialogHeader>
-              <DialogTitle className="text-white">{teamData.name} - {teamData.number}</DialogTitle>
-              <DialogDescription className="text-white">
                 <ul>
-                  <li><strong>Total OPR:</strong> {roundValue(teamStats.tot.value)} (Rank: {teamStats.tot.rank})</li>
-                  <li><strong>Auto OPR:</strong> {roundValue(teamStats.auto.value)} (Rank: {teamStats.auto.rank})</li>
-                  <li><strong>TeleOp OPR:</strong> {roundValue(teamStats.dc.value)} (Rank: {teamStats.dc.rank})</li>
-                  <li><strong>Endgame OPR:</strong> {roundValue(teamStats.eg.value)} (Rank: {teamStats.eg.rank})</li>
+                  <li><strong>Total OPR:</strong> {roundValue(teamStats?.tot.value)} (Rank: {teamStats?.tot.rank})</li>
+                  <li><strong>Auto OPR:</strong> {roundValue(teamStats?.auto.value)} (Rank: {teamStats?.auto.rank})</li>
+                  <li><strong>TeleOp OPR:</strong> {roundValue(teamStats?.dc.value)} (Rank: {teamStats?.dc.rank})</li>
+                  <li><strong>Endgame OPR:</strong> {roundValue(teamStats?.eg.value)} (Rank: {teamStats?.eg.rank})</li>
                 </ul>
               </DialogDescription>
             </DialogHeader>
