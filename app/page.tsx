@@ -411,6 +411,7 @@ export default function IndexPage() {
         <Dialog open={showCompareModal} onOpenChange={(open) => setCompareShowModal(open)}>
           <DialogContent className="max-w-lg p-6 bg-gray-800 rounded-lg max-h-[90vh] overflow-y-auto">
             {/* Team 1 Stats */}
+            {teamData && teamStats && (
             <DialogHeader>
               <DialogTitle className="text-white">{teamData.name} - {teamData.number}</DialogTitle>
               <DialogDescription className="text-white">
@@ -422,7 +423,7 @@ export default function IndexPage() {
                 </ul>
               </DialogDescription>
             </DialogHeader>
-
+            )}
             {/* Team 2 Stats (Compare Team) */}
             {compareTeamData && compareTeamStats && (
               <DialogHeader>
