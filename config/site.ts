@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig
 export const siteConfig = {
   name: "Rift Scout",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "Who is your next alliance partner?",
   mainNav: [
 
   ],
