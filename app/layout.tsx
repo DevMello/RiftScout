@@ -45,7 +45,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex min-h-screen flex-col" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21">
-            <Script defer src="http://dev.riftftc.com:3000/script.js" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21"/>
+            <Script defer src="/script.js" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21" >
+              
+              </Script>
               <div className="flex-1">{children}</div>
             </div>
             <TailwindIndicator />
