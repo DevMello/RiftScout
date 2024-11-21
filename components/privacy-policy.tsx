@@ -25,7 +25,7 @@ export default function PrivacyPolicyContent() {
               <li>Request</li>
               <li>Referrer</li>
               <li>User-Agent</li>
-              <li>Click Count for "Search" and "Compare"</li>
+              <li>Click Count for &quot;Search&quot; and &quot;Compare&quot;</li>
             </ul>
             <p>We do not collect any data that can be used to precisely identify you.</p>
           </section>
