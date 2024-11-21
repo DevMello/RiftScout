@@ -271,7 +271,7 @@ export default function IndexPage() {
             value={number}
             onChange={(e) => setNumber(e.target.value)}
           />
-          <Button type="button" aria-label="Search" onClick={handleSearch}>
+          <Button type="button" aria-label="Search" onClick={handleSearch} data-umami-event="Search">
             Search
           </Button>
         </div>
@@ -294,10 +294,13 @@ export default function IndexPage() {
             value={compareNumber}
             onChange={(e) => setCompareNumber(e.target.value)}
           />
-          <Button type="button" aria-label="Compare" onClick={handleCompare}>
+          <Button type="button" aria-label="Compare" onClick={handleCompare} data-umami-event="Compare">
             Compare
           </Button>
         </div>
+          <p className="mt-12 text-xs text-base-content/70 ">By using this site, you agree to our 
+          <a className="link hover:underline-offset-4" href="/privacy" target="_blank" rel="noreferrer" data-unami-event="Privacy"> Privacy Policy</a>
+        </p>
         {loading && <p>Loading...</p>}
         {error && <p>Error: {error}</p>}
 
