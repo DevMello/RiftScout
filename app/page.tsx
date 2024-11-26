@@ -427,6 +427,7 @@ const calculateWinningProbability = (match: any) => {
                             accept="image/*"
                             required
                             onChange={(e) => setFile(e.target.files![0])}
+                            data-umami-event="Upload"
                         />
                     </div>
                     <div className="mb-4">
@@ -439,9 +440,10 @@ const calculateWinningProbability = (match: any) => {
                             required
                             value={teamNumber}
                             onChange={(e) => setTeamNumber(e.target.value)}
+                            data-umami-event="TeamNumber"
                         />
                     </div>
-                    <Button type="submit" className="w-full mt-4">
+                    <Button type="submit" className="w-full mt-4" data-umami-event="Process">
                         Process Image
                     </Button>
                 </form>
@@ -491,6 +493,7 @@ const calculateWinningProbability = (match: any) => {
                                                         <Button
                                                             className="w-full p-2 rounded-lg bg-gray-700 text-white font-medium mt-4"
                                                             onClick={() => setSelectedTeam(team)}
+                                                            data-umami-event="Team Details"
                                                         >
                                                             Show Details for Team {team}
                                                         </Button>
@@ -633,6 +636,7 @@ const calculateWinningProbability = (match: any) => {
                                     <Button
                                       onClick={() => toggleIndividualTeamDetails(team.teamNumber)}
                                       className="w-full text-left bg-gray-400"
+                                      data-umami-event="Team Details"
                                     >
                                       <strong>Team {team.teamNumber}</strong> - Rank: {team.stats.rank} RP: {roundValue(team.stats.rp)}
                                     </Button>
