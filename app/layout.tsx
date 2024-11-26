@@ -36,7 +36,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="en" suppressHydrationWarning>
-        <head />
         <body
           className={cn(
             "min-h-screen bg-background font-sans antialiased",
@@ -45,7 +44,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex min-h-screen flex-col" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21">
-            <Script defer src="https://umami.riftftc.com/script.js" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21"/>
+            <Script defer src="https://umami.devmello.xyz/script.js" data-website-id="614749ec-3fc2-4f16-a3bb-df472a386c21"/>
   
               <div className="flex-1">{children}</div>
             </div>
