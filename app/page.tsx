@@ -236,7 +236,7 @@ export default function IndexPage() {
     if (team1Stats.eg.value > team2Stats.eg.value) {
       pros.push(`${teamData?.name} has higher Endgame OPR`);
     } else if (team1Stats.eg.value < team2Stats.eg.value) {
-      cons.push(`${compareTeamData?.name} has higher TeleOp OPR`);
+      cons.push(`${compareTeamData?.name} has higher Endgame OPR`);
     } else {
       pros.push('Endgame OPR is tied');
     }
@@ -273,7 +273,7 @@ export default function IndexPage() {
     formData.append("team_number", teamNumber);
 
     try {
-        const response = await fetch("https://waiua.devmello.xyz/process_image", {
+        const response = await fetch("http://127.0.0.1:5000/process_image", {
             method: "POST",
             body: formData,
         });
@@ -403,6 +403,7 @@ const calculateWinningProbability = (match: any) => {
             Compare
           </Button>
         </div>
+        {false && (
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -413,7 +414,9 @@ const calculateWinningProbability = (match: any) => {
             </span>
           </div>
         </div>
-        <div className="w-full max-w-md bg-gray-900 p-6 rounded-lg shadow-lg">
+        )}
+              {false && (
+              <div className="w-full max-w-md bg-gray-900 p-6 rounded-lg shadow-lg">
                 <h1 className="text-3xl font-semibold text-center text-white mb-6">
                     WAIUA (Who Am I Up Against)
                 </h1>
@@ -424,7 +427,7 @@ const calculateWinningProbability = (match: any) => {
                             type="file"
                             id="imageFile"
                             name="file"
-                            accept="image/*"
+                            accept="image/png"
                             required
                             onChange={(e) => setFile(e.target.files![0])}
                             data-umami-event="Upload"
@@ -560,7 +563,8 @@ const calculateWinningProbability = (match: any) => {
                         </DialogClose>
                     </DialogContent>
                 </Dialog>
-            </div>
+              </div>
+              )}
           <p className="mt-12 text-xs text-base-content/70 ">By using this site, you agree to our 
           <a className="link hover:underline-offset-4" href="/privacy" target="_blank" rel="noreferrer" data-unami-event="Privacy"> Privacy Policy</a>
         </p>
